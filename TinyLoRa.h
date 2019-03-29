@@ -26,7 +26,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Modified by Brent Rubell for Adafruit Industries.
  *
  * LGPL license, all text here must be included in any redistribution.
@@ -92,7 +92,7 @@ typedef enum rfm_datarates
 #define REG_MODEM_CONFIG           0x26 ///<Modem configuration register
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  TinyLoRa Class
 */
 /**************************************************************************/

@@ -36,8 +36,8 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * 
+ *
+ *
  * Modified by Brent Rubell for Adafruit Industries.
  *
  * @section license License
@@ -144,7 +144,7 @@ const unsigned char PROGMEM TinyLoRa::S_Table[16][16] = {
  ***************************************************************************/
 
 /**************************************************************************/
-/*! 
+/*!
     @brief Sets the RFM datarate
     @param datarate Bandwidth and Frequency plan.
 */
@@ -196,7 +196,7 @@ void TinyLoRa::setDatarate(rfm_datarates_t datarate) {
 }
 
 /**************************************************************************/
-/*! 
+/*!
     @brief Sets the RFM channel.
     @param channel Which channel to send data
 */
@@ -284,16 +284,16 @@ TinyLoRa::TinyLoRa(int8_t rfm_irq, int8_t rfm_nss) {
  /**************************************************************************/
  /*!
      @brief  Initializes the RFM, including configuring SPI, configuring
-             the frameCounter and txrandomNum. 
+             the frameCounter and txrandomNum.
      @return True if the RFM has been initialized
  */
  /**************************************************************************/
-bool TinyLoRa::begin() 
+bool TinyLoRa::begin()
 {
 
   // start and configure SPI
   SPI.begin();
-  
+
   // RFM95 ss as output
   pinMode(_cs, OUTPUT);
 
@@ -304,7 +304,7 @@ bool TinyLoRa::begin()
   if(ver!=18){
     return 0;
   }
-  
+
   //Switch RFM to sleep
   RFM_Write(0x01,MODE_SLEEP);
 
@@ -361,10 +361,10 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
 
   //Set RFM in Standby mode wait on mode ready
   RFM_Write(MODE_STDBY,0x81);
-  
+
   // wait for standby mode
   delay(10);
-  
+
   //Switch _irq to TxDone
   RFM_Write(0x40,0x40);
 
@@ -402,7 +402,7 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
   //Wait _irq to pull high
   while(digitalRead(_irq) == LOW)
   {
-    
+
   }
   //Switch RFM to sleep
   RFM_Write(0x01,MODE_SLEEP);
@@ -417,7 +417,7 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
               Data to be written to the register.
 */
 /**************************************************************************/
-void TinyLoRa::RFM_Write(unsigned char RFM_Address, unsigned char RFM_Data) 
+void TinyLoRa::RFM_Write(unsigned char RFM_Address, unsigned char RFM_Data)
 {
   // br: SPI Transfer Debug
   #ifdef DEBUG
@@ -450,15 +450,15 @@ void TinyLoRa::RFM_Write(unsigned char RFM_Address, unsigned char RFM_Data)
 */
 /**************************************************************************/
 uint8_t TinyLoRa::RFM_Read(uint8_t RFM_Address) {
-    
+
     SPI.beginTransaction(RFM_spisettings);
-    
+
     digitalWrite(_cs, LOW);
-    
+
     SPI.transfer(RFM_Address & 0x7F);
-    
+
     uint8_t RFM_Data = SPI.transfer(0x00);
-    
+
     digitalWrite(_cs, HIGH);
       // br: SPI Transfer Debug
     #ifdef DEBUG
@@ -482,7 +482,7 @@ uint8_t TinyLoRa::RFM_Read(uint8_t RFM_Address) {
 /**************************************************************************/
 void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx)
 {
-  
+
   //Define variables
   unsigned char i;
 
@@ -509,7 +509,7 @@ void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned
 
   //Encrypt Data (data argument is overwritten in this function)
   Encrypt_Payload(tmpData, Data_Length, Frame_Counter_Tx, Direction);
-  
+
   //Build the Radio Package
   RFM_Data[0] = Mac_Header;
   RFM_Data[1] = DevAddr[3];
@@ -536,7 +536,7 @@ void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned
     Serial.print("Package length: ");
     Serial.println(RFM_Package_Length);
   #endif
-  
+
   //Calculate MIC
   Calculate_MIC(RFM_Data, MIC, RFM_Package_Length, Frame_Counter_Tx, Direction);
 
@@ -548,7 +548,7 @@ void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned
 
   //Add MIC length to RFM package length
   RFM_Package_Length = RFM_Package_Length + 4;
- 
+
   //Send Package
   RFM_Send_Package(RFM_Data, RFM_Package_Length);
   #ifdef DEBUG
@@ -614,7 +614,7 @@ void TinyLoRa::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, u
 
     //Calculate S
     AES_Encrypt(Block_A,AppSkey); //original
-    
+
 
     //Check for last block
     if(i != Number_of_Blocks)
@@ -659,7 +659,7 @@ void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsi
 {
   unsigned char i;
   unsigned char Block_B[16];
-  
+
   unsigned char Key_K1[16] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -679,8 +679,8 @@ void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsi
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
   };
-  
-  
+
+
   unsigned char Number_of_Blocks = 0x00;
   unsigned char Incomplete_Block_Size = 0x00;
   unsigned char Block_Counter = 0x01;
@@ -772,7 +772,7 @@ void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsi
 
     //Preform XOR with old data
     XOR(New_Data,Old_Data);
-    
+
     //Preform last AES routine
     // read NwkSkey from PROGMEM
     AES_Encrypt(New_Data,NwkSkey);
@@ -811,8 +811,8 @@ void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsi
   Final_MIC[1] = New_Data[1];
   Final_MIC[2] = New_Data[2];
   Final_MIC[3] = New_Data[3];
-	
-  // Generate a random number between 0 and 7 to select next transmit channel 
+
+  // Generate a random number between 0 and 7 to select next transmit channel
   randomNum = Final_MIC[3] & 0x07;
 
   // Generate a random number between 0 and 7 to randomise next transmit message schedule
@@ -995,7 +995,7 @@ void TinyLoRa::AES_Encrypt(unsigned char *Data, unsigned char *Key)
       State[Row][Column] = AES_Sub_Byte(State[Row][Column]);
     }
   }
-    
+
   //  Shift rows
   AES_Shift_Rows(State);
 
@@ -1101,8 +1101,8 @@ void TinyLoRa::AES_Mix_Collums(unsigned char (*State)[4])
 {
   unsigned char Row,Collum;
   unsigned char a[4], b[4];
-    
-    
+
+
   for(Collum = 0; Collum < 4; Collum++)
   {
     for(Row = 0; Row < 4; Row++)
@@ -1115,7 +1115,7 @@ void TinyLoRa::AES_Mix_Collums(unsigned char (*State)[4])
         b[Row] ^= 0x1B;
       }
     }
-        
+
     State[0][Collum] = b[0] ^ a[1] ^ b[1] ^ a[2] ^ a[3];
     State[1][Collum] = a[0] ^ b[1] ^ a[2] ^ b[2] ^ a[3];
     State[2][Collum] = a[0] ^ a[1] ^ b[2] ^ a[3] ^ b[3];
@@ -1139,21 +1139,21 @@ void TinyLoRa::AES_Calculate_Round_Key(unsigned char Round, unsigned char *Round
   unsigned char i, j, b, Rcon;
   unsigned char Temp[4];
 
-    
+
     //Calculate Rcon
   Rcon = 0x01;
   while(Round != 1)
   {
     b = Rcon & 0x80;
     Rcon = Rcon << 1;
-        
+
     if(b == 0x80)
     {
       Rcon ^= 0x1b;
     }
     Round--;
   }
-    
+
   //  Calculate first Temp
   //  Copy laste byte from previous key and subsitute the byte, but shift the array contents around by 1.
     Temp[0] = AES_Sub_Byte( Round_Key[12 + 1] );
